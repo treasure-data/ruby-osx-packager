@@ -1,7 +1,8 @@
 ROOT    = File.dirname(__FILE__)
-VERSION = "1.9.3-p194"
+VERSION = "2.0.0-p0"
 
 require "erb"
+require 'fileutils'
 require "tmpdir"
 
 def tempdir
@@ -14,7 +15,7 @@ end
 
 task :default => "pkg/ruby-#{VERSION}.pkg"
 
-file "pkg/ruby-#{VERSION}.pkg" => "/usr/local/heroku/ruby" do |t|
+file "pkg/ruby-#{VERSION}.pkg" => "/usr/local/td/ruby" do |t|
   tempdir do |dir|
     cp_r t.prerequisites.first, "#{dir}/ruby"
 
@@ -44,6 +45,38 @@ file "pkg/ruby-#{VERSION}.pkg" => "/usr/local/heroku/ruby" do |t|
   end
 end
 
-file "/usr/local/heroku/ruby" do |t|
-  sh "vendor/ruby-build/bin/ruby-build #{VERSION} #{t.name}"
+$TD_RUBY_DIR = '/usr/local/td/ruby'
+
+file "/usr/local/td/ruby" => 'setup_readline_and_openssl' do |t|
+  sh %!CC='/usr/bin/clang' RUBY_CONFIGURE_OPTS="--with-readline-dir=#{$TD_RUBY_DIR} --with-openssl-dir=#{$TD_RUBY_DIR}" vendor/ruby-build/bin/ruby-build #{VERSION} #{t.name}!
+end
+
+task 'setup_readline_and_openssl' do
+  Dir.chdir('./ext') do
+    unless Dir.exist?('./readline-6.2')
+      sh "tar zxvf readline-6.2.tar.gz"
+      Dir.chdir('./readline-6.2') do
+        sh "CC='/usr/bin/clang' ./configure --prefix=#{$TD_RUBY_DIR} CC=/usr/bin/clang"
+        sh "make"
+        sh "make install"
+      end
+    end
+
+    unless Dir.exist?('./openssl-1.0.1e')
+      sh "tar zxvf openssl-1.0.1e.tar.gz"
+      Dir.chdir('./openssl-1.0.1e') do
+        sh "CC='/usr/bin/clang' ./Configure --prefix=#{$TD_RUBY_DIR} zlib-dynamic no-krb5 shared darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+        sh "make -j 1"
+        sh "make install_sw"
+      end
+    end
+  end
+
+  Dir.chdir($TD_RUBY_DIR) do
+    FileUtils.rm_rf ["./bin/c_rehash", "./bin/openssl", "./ssl", "./share/readline"]
+  end
+end
+
+task :clean do
+  sh "rm -rf ./pkg ./ext/openssl-1.0.1e ./ext/readline-6.2 /usr/local/td/ruby"
 end
