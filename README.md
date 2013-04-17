@@ -24,3 +24,12 @@ $ rake
 ```sh
 $ rake clean
 ```
+
+## NOTE
+
+This repository includes patch applied readline and openssl to avoid dependent library version issue.
+
+If you update these libraries, then see homebrew formula to apply the patch.
+
+https://github.com/mxcl/homebrew/blob/master/Library/Formula/readline.rb
+https://github.com/mxcl/homebrew/blob/master/Library/Formula/openssl.rb
