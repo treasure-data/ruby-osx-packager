@@ -48,7 +48,7 @@ end
 $TD_RUBY_DIR = '/usr/local/td/ruby'
 
 file "/usr/local/td/ruby" => 'setup_readline_and_openssl' do |t|
-  sh %!CC='/usr/bin/clang' RUBY_CONFIGURE_OPTS="--with-readline-dir=#{$TD_RUBY_DIR} --with-openssl-dir=#{$TD_RUBY_DIR}" vendor/ruby-build/bin/ruby-build #{VERSION} #{t.name}!
+  sh %!CC='/usr/bin/clang' RUBY_CONFIGURE_OPTS="--with-out-ext=tk,dbm,gdbm,sdbm --with-readline-dir=#{$TD_RUBY_DIR} --with-openssl-dir=#{$TD_RUBY_DIR}" vendor/ruby-build/bin/ruby-build #{VERSION} #{t.name}!
 end
 
 task 'setup_readline_and_openssl' do
