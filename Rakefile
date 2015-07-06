@@ -1,5 +1,5 @@
 ROOT    = File.dirname(__FILE__)
-VERSION = "2.0.0-p0"
+VERSION = "2.2.2"
 
 require "erb"
 require 'fileutils'
