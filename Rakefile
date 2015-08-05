@@ -45,7 +45,9 @@ file "pkg/ruby-#{VERSION}.pkg" => "/usr/local/td/ruby" do |t|
   end
 end
 
-$TD_RUBY_DIR = '/usr/local/td/ruby'
+$TD_RUBY_DIR           = '/usr/local/td/ruby'
+$READLINE_PACKAGE_NAME = 'readline-6.3'
+$OPENSSL_PACKAGE_NAME  = 'openssl-1.0.2d'
 
 file "/usr/local/td/ruby" => 'setup_readline_and_openssl' do |t|
   sh %!CC='/usr/bin/clang' RUBY_CONFIGURE_OPTS="--with-out-ext=tk,dbm,gdbm,sdbm --with-readline-dir=#{$TD_RUBY_DIR} --with-openssl-dir=#{$TD_RUBY_DIR}" vendor/ruby-build/bin/ruby-build #{VERSION} #{t.name}!
@@ -53,19 +55,21 @@ end
 
 task 'setup_readline_and_openssl' do
   Dir.chdir('./ext') do
-    unless Dir.exist?('./readline-6.2')
-      sh "tar zxvf readline-6.2.tar.gz"
-      Dir.chdir('./readline-6.2') do
+    unless Dir.exist?("./#{$READLINE_PACKAGE_NAME}")
+      sh "tar zxvf #{$READLINE_PACKAGE_NAME}.tar.gz"
+      Dir.chdir("./#{$READLINE_PACKAGE_NAME}") do
         sh "CC='/usr/bin/clang' ./configure --prefix=#{$TD_RUBY_DIR} CC=/usr/bin/clang"
         sh "make"
         sh "make install"
       end
     end
 
-    unless Dir.exist?('./openssl-1.0.1e')
-      sh "tar zxvf openssl-1.0.1e.tar.gz"
-      Dir.chdir('./openssl-1.0.1e') do
-        sh "CC='/usr/bin/clang' ./Configure --prefix=#{$TD_RUBY_DIR} zlib-dynamic no-krb5 shared darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+    unless Dir.exist?("./#{$OPENSSL_PACKAGE_NAME}")
+      sh "tar zxvf #{$OPENSSL_PACKAGE_NAME}.tar.gz"
+      Dir.chdir("./#{$OPENSSL_PACKAGE_NAME}") do
+        config = "--prefix=#{$TD_RUBY_DIR} zlib-dynamic no-ssl2 shared enable-cms"
+        arch = "darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+        sh "CC='/usr/bin/clang' ./Configure #{config} #{arch}"
         sh "make -j 1"
         sh "make install_sw"
       end
@@ -78,5 +82,5 @@ task 'setup_readline_and_openssl' do
 end
 
 task :clean do
-  sh "rm -rf ./pkg ./ext/openssl-1.0.1e ./ext/readline-6.2 /usr/local/td/ruby"
+  sh "rm -rf ./pkg ./ext/#{$OPENSSL_PACKAGE_NAME} ./ext/#{$READLINE_PACKAGE_NAME} /usr/local/td/ruby"
 end
