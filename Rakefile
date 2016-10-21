@@ -1,5 +1,5 @@
 ROOT    = File.dirname(__FILE__)
-VERSION = "2.2.2"
+VERSION = "2.3.1"
 
 require "erb"
 require 'fileutils'
@@ -47,7 +47,7 @@ end
 
 $TD_RUBY_DIR           = '/usr/local/td/ruby'
 $READLINE_PACKAGE_NAME = 'readline-6.3'
-$OPENSSL_PACKAGE_NAME  = 'openssl-1.0.2d'
+$OPENSSL_PACKAGE_NAME  = 'openssl-1.0.2j'
 
 file "/usr/local/td/ruby" => 'setup_readline_and_openssl' do |t|
   sh %!CC='/usr/bin/clang' RUBY_CONFIGURE_OPTS="--with-out-ext=tk,dbm,gdbm,sdbm --with-readline-dir=#{$TD_RUBY_DIR} --with-openssl-dir=#{$TD_RUBY_DIR}" vendor/ruby-build/bin/ruby-build #{VERSION} #{t.name}!
