@@ -1,5 +1,5 @@
 ROOT    = File.dirname(__FILE__)
-VERSION = "2.2.8"
+VERSION = "2.4.4"
 
 require "erb"
 require 'fileutils'
@@ -47,7 +47,7 @@ end
 
 $TD_RUBY_DIR           = '/usr/local/td/ruby'
 $READLINE_PACKAGE_NAME = 'readline-6.3'
-$OPENSSL_PACKAGE_NAME  = 'openssl-1.0.2l'
+$OPENSSL_PACKAGE_NAME  = 'openssl-1.0.2o'
 
 file "/usr/local/td/ruby" => 'setup_readline_and_openssl' do |t|
   sh %!CC='/usr/bin/clang' RUBY_CONFIGURE_OPTS="--with-out-ext=tk,dbm,gdbm,sdbm --with-readline-dir=#{$TD_RUBY_DIR} --with-openssl-dir=#{$TD_RUBY_DIR}" vendor/ruby-build/bin/ruby-build #{VERSION} #{t.name}!
@@ -66,7 +66,7 @@ task 'setup_readline_and_openssl' do
 
     unless Dir.exist?("./#{$OPENSSL_PACKAGE_NAME}")
       unless File.exist?("#{$OPENSSL_PACKAGE_NAME}.tar.gz")
-        system('curl -sJLO https://www.openssl.org/source/openssl-1.0.2l.tar.gz')
+        system("curl -sJLO https://www.openssl.org/source/#{$OPENSSL_PACKAGE_NAME}.tar.gz")
       end
       sh "tar zxvf #{$OPENSSL_PACKAGE_NAME}.tar.gz"
       Dir.chdir("./#{$OPENSSL_PACKAGE_NAME}") do
